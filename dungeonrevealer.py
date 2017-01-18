@@ -101,7 +101,10 @@ class Application(tk.Frame):
         exit
     def __motion(self,event=None):
         self.img.delete(self.circ)
-        self.circ=self.img.create_circle(event.x,event.y,self.circSize,outline="#f00")
+        if self.xs is None:
+            self.circ=self.img.create_circle(event.x,event.y,self.circSize,outline="#f00")
+        else:
+            self.circ=self.img.create_rectangle(self.xs,self.ys,event.x,event.y,outline="#f00")
     def __smaller(self,event):
         if self.circSize>5:
             self.circSize-=5
@@ -153,6 +156,7 @@ class Application(tk.Frame):
             ys=max(min(ye,self.ys),0)
             xe=min(max(xe,self.xs),ashape[1])
             ye=min(max(ye,self.ys),ashape[0])
+            self.xs=None
             for x in range(xs,xe):
                 for y in range(ys,ye):
                     self.alpha[y,x]=0
@@ -167,20 +171,23 @@ class Application(tk.Frame):
         
     def __save(self,event=None):
         print("saving")
-        of=sys.argv[1][:-4]+".png"
-        im_fg.save(of,"PNG")
+        #of=sys.argv[1][:-4]+".png"
+        global outfile
+        im_fg.save(outfile,"PNG")
             
             
         
 try:
-    im_bg=Image.open(sys.argv[2])
+    im_bg=Image.open(sys.argv[1])
 except e:
     print("Usage:")
-    print("\t%s <path-to-fg-image> <path-to-bg-image>"%sys.argv[0])
+    print("\t%s <path-to-bg-image>"%sys.argv[0])
     sys.exit(1)
 
+outfile,ext=os.path.splitext(sys.argv[0])
+outfile+="_Player.png"
 try:
-    im_fg=Image.open(sys.argv[1])
+    im_fg=Image.open(outfile)
 except:
     dat = np.array(im_bg.convert("RGB"))
     im_fg=Image.fromarray(dat*0)

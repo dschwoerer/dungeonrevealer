@@ -5,12 +5,12 @@ from PIL import Image
 from PIL import ImageTk as itk
 import tkinter as tk
 import numpy as np
-import cProfile as cp
+#import cProfile as cp
 def _create_circle(self, x, y, r, **kwargs):
     return self.create_oval(x-r, y-r, x+r, y+r, **kwargs)
 tk.Canvas.create_circle = _create_circle
 
-from profilehooks import profile
+#from profilehooks import profile
 im_fg=None
 im_bg=None
 fu=None
@@ -79,6 +79,7 @@ class Application(tk.Frame):
         self.master.title('Dungeon Master')
         self.pack(fill=tk.BOTH,expand=tk.YES)
         self.save_queue=None
+        self.xs=None
         self.bind_all('<Escape>',self.__exit)
         self.bind_all('<Configure>',self.__redraw)
         self.img.bind('<Motion>',self.__motion)
@@ -144,11 +145,12 @@ class Application(tk.Frame):
         #    print(event.type)
     def __right(self,event):
         if int(event.type) == 4:
-            fac=1/self.img.fac
-            self.xs=int((event.x-self.img.x0)*fac)
-            self.ys=int((event.y-self.img.y0)*fac)
+            self.xs=event.x
+            self.ys=event.y
         elif int(event.type) == 5:
             fac=1/self.img.fac
+            self.xs=int((self.xs-self.img.x0)*fac)
+            self.ys=int((self.ys-self.img.y0)*fac)
             xe=int((event.x-self.img.x0)*fac)
             ye=int((event.y-self.img.y0)*fac)
             ashape=self.alpha.shape
@@ -183,8 +185,8 @@ except e:
     print("Usage:")
     print("\t%s <path-to-bg-image>"%sys.argv[0])
     sys.exit(1)
-
-outfile,ext=os.path.splitext(sys.argv[0])
+import os
+outfile,ext=os.path.splitext(sys.argv[1])
 outfile+="_Player.png"
 try:
     im_fg=Image.open(outfile)
